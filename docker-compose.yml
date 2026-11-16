@@ -1,0 +1,15 @@
+services:
+  cyber-audit:
+    build: .
+    image: cyber-audit:latest
+    container_name: cyber-audit
+    restart: unless-stopped
+    # Réseau de l'hôte : nécessaire pour scanner le réseau local de façon fiable
+    network_mode: host
+    # Droits réseau bruts : scan SYN plus rapide et détection d'OS
+    cap_add: [NET_RAW, NET_ADMIN]
+    environment:
+      AUDIT_PASSWORD: ${AUDIT_PASSWORD:?Définis AUDIT_PASSWORD dans le fichier .env}
+      AUDIT_PORT: ${AUDIT_PORT:-8090}
+    volumes:
+      - ./data:/data

@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rapport d'audit – Exemple – serveur de test</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+  :root { --ink:#0d1b2a; --muted:#5b6b7c; --line:#dde5ee; --brand:#0077ff; --cyan:#00b8d9; --bg:#f5f8fb;
+          --crit:#c81e4b; --high:#ea5a0c; --med:#d99a00; --low:#2b8fd6; --info:#7a8899; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Segoe UI", "Noto Sans", "DejaVu Sans", Arial, sans-serif; color:var(--ink); font-size:10.5pt; line-height:1.45;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1,h2,h3 { margin:0; }
+  h2 { font-size:15pt; margin:22px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line); display:flex; align-items:center; gap:10px; }
+  h2 .n { width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg,var(--cyan),var(--brand)); color:#fff; font-size:11pt; display:inline-grid; place-items:center; }
+  .cover { height: 265mm; display:flex; flex-direction:column; justify-content:space-between; padding:18mm 14mm; margin:-14mm -14mm 0;
+           background: radial-gradient(circle at 85% 15%, rgba(0,184,217,.35), transparent 45%), radial-gradient(circle at 10% 90%, rgba(0,119,255,.35), transparent 50%), #07121f;
+           color:#e9f6ff; page-break-after: always; }
+  .cover .tag { letter-spacing:.35em; font-size:9pt; color:#7fd8ff; text-transform:uppercase; }
+  .cover h1 { font-size:34pt; line-height:1.1; margin-top:14px; font-weight:700; }
+  .cover h1 span { color:#5ad7ff; }
+  .cover .meta { display:grid; grid-template-columns: 1fr 1fr; gap:10px 30px; font-size:10.5pt; margin-top:26px; }
+  .cover .meta div small { display:block; color:#7fa6c2; font-size:8.5pt; text-transform:uppercase; letter-spacing:.12em; }
+  .grade-wrap { display:flex; align-items:center; gap:26px; }
+  .ring { width:150px; height:150px; border-radius:50%; display:grid; place-items:center; position:relative;
+          background: conic-gradient(var(--gc) calc(16 * 1%), rgba(255,255,255,.12) 0); }
+  .ring::after { content:""; position:absolute; inset:12px; border-radius:50%; background:#07121f; }
+  .ring b { position:relative; z-index:1; font-size:56pt; font-weight:800; color:var(--gc); line-height:1; }
+  .ring small { position:absolute; bottom:26px; z-index:1; color:#9cc3dc; font-size:9pt; }
+  .grade-txt h3 { font-size:18pt; } .grade-txt p { color:#a7c5da; margin:6px 0 0; max-width:300px; }
+  .counts { display:flex; gap:10px; margin-top:16px; }
+  .cnt { flex:1; border-radius:10px; padding:10px 12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); }
+  .cnt b { display:block; font-size:20pt; } .cnt small { color:#a7c5da; font-size:8.5pt; text-transform:uppercase; letter-spacing:.08em; }
+  .cover .foot { font-size:8.5pt; color:#7fa6c2; border-top:1px solid rgba(255,255,255,.15); padding-top:10px; }
+  .sev { display:inline-block; padding:2px 8px; border-radius:20px; font-size:8pt; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; }
+  .sev-critique { background:var(--crit); } .sev-élevée { background:var(--high); } .sev-moyenne { background:var(--med); } .sev-faible { background:var(--low); } .sev-info { background:var(--info); }
+  .card { border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:#fff; margin-bottom:12px; page-break-inside: avoid; }
+  .summary { background:var(--bg); border-left:4px solid var(--brand); }
+  .summary p { margin:0 0 6px; }
+  .src { color:var(--muted); font-size:8.5pt; }
+  .bar { display:flex; height:14px; border-radius:8px; overflow:hidden; background:var(--line); margin:8px 0 4px; }
+  .bar span { display:block; height:100%; }
+  .legend { display:flex; gap:14px; font-size:8.5pt; color:var(--muted); flex-wrap:wrap; }
+  .legend i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:middle; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  ol.plan { margin:0; padding-left:20px; } ol.plan li { margin:5px 0; }
+  ul.good { margin:0; padding-left:18px; } ul.good li::marker { color:#1aa96b; }
+  table { width:100%; border-collapse:collapse; font-size:9pt; }
+  th { text-align:left; background:var(--bg); color:var(--muted); font-weight:600; font-size:8pt; text-transform:uppercase; letter-spacing:.06em; }
+  th, td { padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr { page-break-inside: avoid; }
+  .finding h3 { font-size:11.5pt; display:flex; align-items:center; gap:8px; }
+  .finding .where { color:var(--muted); font-size:9pt; margin:3px 0 8px; font-family: Consolas, "DejaVu Sans Mono", monospace; }
+  .finding .lbl { font-weight:700; font-size:8.5pt; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-top:8px; }
+  .finding p { margin:2px 0; }
+  .fix { background:#ecfbf3; border:1px solid #bfeccf; border-radius:8px; padding:7px 10px; margin-top:6px; }
+  pre { white-space:pre-wrap; word-break:break-word; background:#0d1b2a; color:#cde9ff; padding:8px 10px; border-radius:8px; font-size:8pt; margin:4px 0 0; max-height:none; }
+  .kev { background:var(--crit); color:#fff; padding:1px 6px; border-radius:4px; font-size:7.5pt; font-weight:700; }
+  .new { background:#7b3fe4; color:#fff; padding:1px 6px; border-radius:4px; font-size:7.5pt; font-weight:700; }
+  .mono { font-family: Consolas, "DejaVu Sans Mono", monospace; font-size:8.5pt; }
+  .muted { color:var(--muted); }
+  .page-break { page-break-before: always; }
+  a { color:var(--brand); text-decoration:none; }
+</style>
+</head>
+<body style="--gc: #dc2626;">
+
+<section class="cover">
+  <div>
+    <div class="tag">Rapport d'audit de sécurité · Confidentiel</div>
+    <h1>Exemple – serveur de test<br><span>10.10.0.50</span></h1>
+    <div class="meta">
+      <div><small>Date</small>16 novembre 2026 à 15:00</div>
+      <div><small>Durée</small>2 min 14 s</div>
+      <div><small>Organisation</small>—</div>
+      <div><small>Auditeur</small>—</div>
+      <div><small>Machines analysées</small>1</div>
+      <div><small>Services ouverts</small>4</div>
+    </div>
+  </div>
+  <div>
+    <div class="grade-wrap">
+      <div class="ring"><b>F</b><small>16/100</small></div>
+      <div class="grade-txt"><h3>Niveau de sécurité : Critique</h3><p>Note calculée à partir de la gravité des constats. Toute faille critique plafonne la note à D.</p></div>
+    </div>
+    <div class="counts">
+      
+      <div class="cnt"><b style="color:var(--crit)">1</b><small>Critiques</small></div>
+      
+      <div class="cnt"><b style="color:var(--high)">5</b><small>Élevés</small></div>
+      
+      <div class="cnt"><b style="color:var(--med)">2</b><small>Moyens</small></div>
+      
+      <div class="cnt"><b style="color:var(--low)">1</b><small>Faibles</small></div>
+      
+    </div>
+  </div>
+  <div class="foot">Généré par CYBER AUDIT v1.0.0 · Audit non intrusif réalisé avec l'autorisation déclarée du propriétaire du périmètre · Identifiant exemple</div>
+</section>
+
+<h2><span class="n">1</span>Synthèse</h2>
+<div class="card summary">
+  <p>L&#39;audit a analysé 1 machine(s) et 4 service(s) réseau ouverts. La note globale est F (critique, 16/100). Il a relevé 1 problème(s) critique(s), 5 élevé(s), 2 moyen(s) et 1 faible(s). Les points critiques et élevés doivent être corrigés en priorité, car ils peuvent permettre une intrusion ou une fuite de données.</p>
+  <div class="src">Synthèse automatique (IA locale indisponible)</div>
+</div>
+<div class="card">
+  <b>Répartition des constats</b>
+  <div class="bar">
+    
+      <span style="width:11.1%; background:var(--crit)"></span>
+    
+      <span style="width:55.6%; background:var(--high)"></span>
+    
+      <span style="width:22.2%; background:var(--med)"></span>
+    
+      <span style="width:11.1%; background:var(--low)"></span>
+    
+      
+    
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--crit)"></i>Critique : 1</span><span><i style="background:var(--high)"></i>Élevée : 5</span><span><i style="background:var(--med)"></i>Moyenne : 2</span><span><i style="background:var(--low)"></i>Faible : 1</span><span><i style="background:var(--info)"></i>Info : 0</span>
+  </div>
+</div>
+<div class="grid2">
+  <div class="card"><b>Plan d'action prioritaire</b><ol class="plan"><li>Vulnérabilités connues : Apache httpd 2.4.49 (10.10.0.50:8099) : Mettre à jour Apache httpd vers la dernière version stable de l&#39;éditeur, puis relancer l&#39;audit.</li><li>Connexion FTP anonyme autorisée (10.10.0.50:21) : Désactiver l&#39;accès anonyme..</li><li>Vulnérabilités connues : OpenSSH 8.4p1 Debian 5+deb11u1 (10.10.0.50:22) : Mettre à jour OpenSSH vers la dernière version stable de l&#39;éditeur, puis relancer l&#39;audit..</li><li>Redis accessible (10.10.0.50:6379) : Lier Redis à 127.0.0.1, activer requirepass / ACL..</li><li>FTP non chiffré (10.10.0.50:21) : Remplacer par SFTP/FTPS ou restreindre au réseau d&#39;administration..</li><li>Signature SMB non obligatoire (10.10.0.50:445) : Activer « Microsoft network server: Digitally sign communications (always) »..</li></ol></div>
+  <div class="card"><b>Points forts</b>
+    <ul class="good"><li>Surface d&#39;attaque réduite : peu de services exposés par machine.</li></ul>
+    <b style="display:block;margin-top:10px">Veille vulnérabilités utilisée</b>
+    <ul class="good"><li>NVD (NIST) – base CVE officielle</li><li>CISA KEV (exemple)</li><li>FIRST EPSS (probabilité d&#39;exploitation à 30 jours)</li></ul>
+  </div>
+</div>
+
+<h2><span class="n">2</span>Machines et services découverts</h2>
+<table>
+  <tr><th>Machine</th><th>Système</th><th>Services ouverts</th><th>Constats</th></tr>
+  
+  <tr>
+    <td><b class="mono">10.10.0.50</b><br><span class="muted">lab-web.sujee.lab</span></td>
+    <td>Linux 5.0 - 5.14 (96 %)</td>
+    <td class="mono">21/ftp – vsftpd 3.0.3<br>22/ssh – OpenSSH 8.4p1 Debian 5+deb11u1<br>6379/redis – Redis key-value store 5.0.7<br>8099/http – Apache httpd 2.4.49<br></td>
+    <td><span class="sev sev-critique">1 critique</span> <span class="sev sev-élevée">5 élevée</span> <span class="sev sev-moyenne">2 moyenne</span> <span class="sev sev-faible">1 faible</span> </td>
+  </tr>
+  
+</table>
+
+<h2 class="page-break"><span class="n">3</span>Constats détaillés</h2>
+
+<div class="card finding">
+  <h3><span class="sev sev-critique">critique</span>Vulnérabilités connues : Apache httpd 2.4.49</h3>
+  <div class="where">10.10.0.50:8099 · Vulnérabilité (CVE) · fiabilité : probable</div>
+  <p>Apache httpd 2.4.49 est concerné par 2 vulnérabilité(s) publiée(s) : 1 critique(s), 2 activement exploitée(s) (CISA KEV), 0 publiée(s) ces 12 derniers mois.</p>
+  
+  <div class="lbl">Vulnérabilités les plus importantes</div>
+  <table>
+    <tr><th>CVE</th><th>CVSS</th><th>Exploitation</th><th>Publiée</th><th>Description</th></tr>
+    
+    <tr>
+      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-42013">CVE-2021-42013</a></td>
+      <td><b>9.8</b></td>
+      <td><span class="kev">EXPLOITÉE</span><br>EPSS 94.3 %</td>
+      <td>2021-10-07</td>
+      <td style="font-size:8pt">RCE</td>
+    </tr>
+    
+    <tr>
+      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/CVE-2021-41773">CVE-2021-41773</a></td>
+      <td><b>7.5</b></td>
+      <td><span class="kev">EXPLOITÉE</span> rançongiciels<br>EPSS 94.4 %</td>
+      <td>2021-10-05</td>
+      <td style="font-size:8pt">Path traversal</td>
+    </tr>
+    
+  </table>
+  
+  
+  <div class="fix"><b>Correction recommandée : </b>Mettre à jour Apache httpd vers la dernière version stable de l&#39;éditeur, puis relancer l&#39;audit. Priorité absolue : au moins une faille est exploitée par des attaquants en ce moment.</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-élevée">élevée</span>Connexion FTP anonyme autorisée</h3>
+  <div class="where">10.10.0.50:21 · Authentification</div>
+  <p>N&#39;importe qui peut se connecter au FTP sans mot de passe.</p>
+  
+  <div class="lbl">Preuve</div><pre>Anonymous FTP login allowed (FTP code 230)
+-rw-r--r--    1 0        0              12 Nov 10 10:00 notes.txt</pre>
+  
+  <div class="fix"><b>Correction recommandée : </b>Désactiver l&#39;accès anonyme.</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-élevée">élevée</span>Vulnérabilités connues : OpenSSH 8.4p1 Debian 5+deb11u1</h3>
+  <div class="where">10.10.0.50:22 · Vulnérabilité (CVE) · fiabilité : à confirmer</div>
+  <p>OpenSSH 8.4p1 Debian 5+deb11u1 est concerné par 2 vulnérabilité(s) publiée(s) : 0 critique(s), 0 activement exploitée(s) (CISA KEV), 1 publiée(s) ces 12 derniers mois. Attention : ce paquet vient d&#39;une distribution Linux qui corrige souvent les failles sans changer le numéro de version (backport). Vérifie avec le gestionnaire de paquets avant de conclure.</p>
+  
+  <div class="lbl">Vulnérabilités les plus importantes</div>
+  <table>
+    <tr><th>CVE</th><th>CVSS</th><th>Exploitation</th><th>Publiée</th><th>Description</th></tr>
+    
+    <tr>
+      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-6387">CVE-2024-6387</a></td>
+      <td><b>8.1</b></td>
+      <td><br>EPSS 38.0 %</td>
+      <td>2024-07-01</td>
+      <td style="font-size:8pt">regreSSHion</td>
+    </tr>
+    
+    <tr>
+      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-0001">CVE-2026-0001</a></td>
+      <td><b>5.0</b></td>
+      <td></td>
+      <td>2026-06-01 <span class="new">RÉCENTE</span></td>
+      <td style="font-size:8pt">Récente</td>
+    </tr>
+    
+  </table>
+  
+  
+  <div class="fix"><b>Correction recommandée : </b>Mettre à jour OpenSSH vers la dernière version stable de l&#39;éditeur, puis relancer l&#39;audit.</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-élevée">élevée</span>Redis accessible</h3>
+  <div class="where">10.10.0.50:6379 · Exposition</div>
+  <p>Redis sans authentification permet souvent de prendre le contrôle du serveur.</p>
+  
+  <div class="lbl">Preuve</div><pre>6379/tcp redis Redis key-value store 5.0.7</pre>
+  
+  <div class="fix"><b>Correction recommandée : </b>Lier Redis à 127.0.0.1, activer requirepass / ACL.</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-élevée">élevée</span>Vulnérabilité détectée par le script http-vuln-cve2021-41773</h3>
+  <div class="where">10.10.0.50:8099 · Vulnérabilité</div>
+  <p>Un script de détection Nmap a confirmé une vulnérabilité sur ce service.</p>
+  
+  <div class="lbl">Preuve</div><pre>VULNERABLE:
+  Path traversal in Apache 2.4.49
+    State: VULNERABLE
+    IDs:  CVE:CVE-2021-41773</pre>
+  
+  <div class="fix"><b>Correction recommandée : </b>Appliquer le correctif de l&#39;éditeur ou mettre à jour le service.</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-élevée">élevée</span>Dépôt Git exposé</h3>
+  <div class="where">10.10.0.50:8099 · Exposition de données</div>
+  <p>Le dossier .git est téléchargeable : code source, historique et parfois mots de passe récupérables.</p>
+  
+  <div class="lbl">Preuve</div><pre>http://10.10.0.50:8099/.git/HEAD</pre>
+  
+  <div class="fix"><b>Correction recommandée : </b>Bloquer l&#39;accès aux dossiers cachés (.git) dans la configuration du serveur web.</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-moyenne">moyenne</span>FTP non chiffré</h3>
+  <div class="where">10.10.0.50:21 · Exposition</div>
+  <p>FTP transmet les mots de passe en clair.</p>
+  
+  <div class="lbl">Preuve</div><pre>21/tcp ftp vsftpd 3.0.3</pre>
+  
+  <div class="fix"><b>Correction recommandée : </b>Remplacer par SFTP/FTPS ou restreindre au réseau d&#39;administration.</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-moyenne">moyenne</span>Signature SMB non obligatoire</h3>
+  <div class="where">10.10.0.50:445 · Configuration</div>
+  <p>Sans signature SMB, un attaquant sur le réseau peut relayer des authentifications (NTLM relay).</p>
+  
+  <div class="lbl">Preuve</div><pre>3:1:1: 
+    Message signing enabled but not required</pre>
+  
+  <div class="fix"><b>Correction recommandée : </b>Activer « Microsoft network server: Digitally sign communications (always) ».</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-faible">faible</span>Algorithmes SSH faibles acceptés</h3>
+  <div class="where">10.10.0.50:22 · Chiffrement</div>
+  <p>Le serveur SSH accepte des algorithmes obsolètes.</p>
+  
+  <div class="lbl">Preuve</div><pre>aes256-cbc, diffie-hellman-group1-sha1, hmac-md5</pre>
+  
+  <div class="fix"><b>Correction recommandée : </b>Retirer ces algorithmes de sshd_config (KexAlgorithms, Ciphers, MACs).</div>
+</div>
+
+
+
+
+
+<h2 class="page-break"><span class="n">4</span>Méthodologie et limites</h2>
+<div class="card">
+  <p><b>Périmètre :</b> 10.10.0.50 — profil « Rapide ». L'utilisateur a certifié être autorisé à auditer ce périmètre le 16 novembre 2026 à 15:00.</p>
+  <p><b>Étapes :</b> découverte des machines actives (Nmap -sn) ; inventaire des ports et versions des services (Nmap -sV) avec scripts de la catégorie « safe » uniquement ;
+     contrôles web et TLS en lecture seule (en-têtes, HTTPS, fichiers sensibles exposés, versions TLS, certificats) ;
+     corrélation des versions avec la base NVD, le catalogue CISA KEV des failles activement exploitées et le score EPSS ; synthèse par IA locale.</p>
+  <p><b>Ce que cet audit ne fait pas :</b> aucune exploitation, aucun test de mots de passe par force brute, aucun déni de service, aucune modification des systèmes.
+     Les correspondances CVE basées sur les versions peuvent produire des faux positifs (correctifs rétroportés par les distributions Linux) et doivent être confirmées.
+     Un audit automatisé ne remplace pas un test d'intrusion manuel.</p>
+</div>
+<div class="card">
+  <b>Commandes exécutées</b>
+  <pre>nmap -sV --top-ports 1000 -T4 --script &#34;(default or vuln or discovery) and safe&#34; -Pn 10.10.0.50</pre>
+</div>
+</body>
+</html>

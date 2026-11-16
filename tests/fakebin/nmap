@@ -1,0 +1,7 @@
+#!/bin/sh
+# Faux nmap pour les tests : renvoie des résultats enregistrés
+D="$(dirname "$0")/../fixtures"
+case " $* " in
+  *" -sn "*) cat "$D/discover.xml" ;;
+  *) sleep 1; cat "$D/scan_lab.xml" ;;
+esac

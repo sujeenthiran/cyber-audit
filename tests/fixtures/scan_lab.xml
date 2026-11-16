@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nmaprun scanner="nmap" args="nmap -sV" version="7.95">
+<host><status state="up" reason="syn-ack"/>
+<address addr="127.0.0.1" addrtype="ipv4"/>
+<hostnames><hostname name="lab-web.sujee.lab" type="PTR"/></hostnames>
+<ports>
+<port protocol="tcp" portid="21"><state state="open"/><service name="ftp" product="vsftpd" version="3.0.3" method="probed"><cpe>cpe:/a:vsftpd_project:vsftpd:3.0.3</cpe></service>
+<script id="ftp-anon" output="Anonymous FTP login allowed (FTP code 230)&#xa;-rw-r--r--    1 0        0              12 Nov 10 10:00 notes.txt"/></port>
+<port protocol="tcp" portid="22"><state state="open"/><service name="ssh" product="OpenSSH" version="8.4p1 Debian 5+deb11u1" extrainfo="protocol 2.0" method="probed"><cpe>cpe:/a:openbsd:openssh:8.4p1</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service>
+<script id="ssh2-enum-algos" output="kex_algorithms: (10)&#xa;  curve25519-sha256&#xa;  diffie-hellman-group1-sha1&#xa;encryption_algorithms: (6)&#xa;  aes128-ctr&#xa;  aes256-cbc&#xa;mac_algorithms: (4)&#xa;  hmac-sha2-256&#xa;  hmac-md5"/></port>
+<port protocol="tcp" portid="6379"><state state="open"/><service name="redis" product="Redis key-value store" version="5.0.7" method="probed"><cpe>cpe:/a:redis:redis:5.0.7</cpe></service></port>
+<port protocol="tcp" portid="8099"><state state="open"/><service name="http" product="Apache httpd" version="2.4.49" extrainfo="(Unix)" method="probed"><cpe>cpe:/a:apache:http_server:2.4.49</cpe></service>
+<script id="http-vuln-cve2021-41773" output="VULNERABLE:&#xa;  Path traversal in Apache 2.4.49&#xa;    State: VULNERABLE&#xa;    IDs:  CVE:CVE-2021-41773"/></port>
+</ports>
+<hostscript><script id="smb2-security-mode" output="&#xa;  3:1:1: &#xa;    Message signing enabled but not required"/></hostscript>
+<os><osmatch name="Linux 5.0 - 5.14" accuracy="96"/></os>
+</host>
+</nmaprun>

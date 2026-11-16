@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rapport d'audit – {{ a.name }}</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+  :root { --ink:#0d1b2a; --muted:#5b6b7c; --line:#dde5ee; --brand:#0077ff; --cyan:#00b8d9; --bg:#f5f8fb;
+          --crit:#c81e4b; --high:#ea5a0c; --med:#d99a00; --low:#2b8fd6; --info:#7a8899; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Segoe UI", "Noto Sans", "DejaVu Sans", Arial, sans-serif; color:var(--ink); font-size:10.5pt; line-height:1.45;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1,h2,h3 { margin:0; }
+  h2 { font-size:15pt; margin:22px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line); display:flex; align-items:center; gap:10px; }
+  h2 .n { width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg,var(--cyan),var(--brand)); color:#fff; font-size:11pt; display:inline-grid; place-items:center; }
+  .cover { height: 265mm; display:flex; flex-direction:column; justify-content:space-between; padding:18mm 14mm; margin:-14mm -14mm 0;
+           background: radial-gradient(circle at 85% 15%, rgba(0,184,217,.35), transparent 45%), radial-gradient(circle at 10% 90%, rgba(0,119,255,.35), transparent 50%), #07121f;
+           color:#e9f6ff; page-break-after: always; }
+  .cover .tag { letter-spacing:.35em; font-size:9pt; color:#7fd8ff; text-transform:uppercase; }
+  .cover h1 { font-size:34pt; line-height:1.1; margin-top:14px; font-weight:700; }
+  .cover h1 span { color:#5ad7ff; }
+  .cover .meta { display:grid; grid-template-columns: 1fr 1fr; gap:10px 30px; font-size:10.5pt; margin-top:26px; }
+  .cover .meta div small { display:block; color:#7fa6c2; font-size:8.5pt; text-transform:uppercase; letter-spacing:.12em; }
+  .grade-wrap { display:flex; align-items:center; gap:26px; }
+  .ring { width:150px; height:150px; border-radius:50%; display:grid; place-items:center; position:relative;
+          background: conic-gradient(var(--gc) calc({{ g.score }} * 1%), rgba(255,255,255,.12) 0); }
+  .ring::after { content:""; position:absolute; inset:12px; border-radius:50%; background:#07121f; }
+  .ring b { position:relative; z-index:1; font-size:56pt; font-weight:800; color:var(--gc); line-height:1; }
+  .ring small { position:absolute; bottom:26px; z-index:1; color:#9cc3dc; font-size:9pt; }
+  .grade-txt h3 { font-size:18pt; } .grade-txt p { color:#a7c5da; margin:6px 0 0; max-width:300px; }
+  .counts { display:flex; gap:10px; margin-top:16px; }
+  .cnt { flex:1; border-radius:10px; padding:10px 12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); }
+  .cnt b { display:block; font-size:20pt; } .cnt small { color:#a7c5da; font-size:8.5pt; text-transform:uppercase; letter-spacing:.08em; }
+  .cover .foot { font-size:8.5pt; color:#7fa6c2; border-top:1px solid rgba(255,255,255,.15); padding-top:10px; }
+  .sev { display:inline-block; padding:2px 8px; border-radius:20px; font-size:8pt; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; }
+  .sev-critique { background:var(--crit); } .sev-élevée { background:var(--high); } .sev-moyenne { background:var(--med); } .sev-faible { background:var(--low); } .sev-info { background:var(--info); }
+  .card { border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:#fff; margin-bottom:12px; page-break-inside: avoid; }
+  .summary { background:var(--bg); border-left:4px solid var(--brand); }
+  .summary p { margin:0 0 6px; }
+  .src { color:var(--muted); font-size:8.5pt; }
+  .bar { display:flex; height:14px; border-radius:8px; overflow:hidden; background:var(--line); margin:8px 0 4px; }
+  .bar span { display:block; height:100%; }
+  .legend { display:flex; gap:14px; font-size:8.5pt; color:var(--muted); flex-wrap:wrap; }
+  .legend i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:middle; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  ol.plan { margin:0; padding-left:20px; } ol.plan li { margin:5px 0; }
+  ul.good { margin:0; padding-left:18px; } ul.good li::marker { color:#1aa96b; }
+  table { width:100%; border-collapse:collapse; font-size:9pt; }
+  th { text-align:left; background:var(--bg); color:var(--muted); font-weight:600; font-size:8pt; text-transform:uppercase; letter-spacing:.06em; }
+  th, td { padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr { page-break-inside: avoid; }
+  .finding h3 { font-size:11.5pt; display:flex; align-items:center; gap:8px; }
+  .finding .where { color:var(--muted); font-size:9pt; margin:3px 0 8px; font-family: Consolas, "DejaVu Sans Mono", monospace; }
+  .finding .lbl { font-weight:700; font-size:8.5pt; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-top:8px; }
+  .finding p { margin:2px 0; }
+  .fix { background:#ecfbf3; border:1px solid #bfeccf; border-radius:8px; padding:7px 10px; margin-top:6px; }
+  pre { white-space:pre-wrap; word-break:break-word; background:#0d1b2a; color:#cde9ff; padding:8px 10px; border-radius:8px; font-size:8pt; margin:4px 0 0; max-height:none; }
+  .kev { background:var(--crit); color:#fff; padding:1px 6px; border-radius:4px; font-size:7.5pt; font-weight:700; }
+  .new { background:#7b3fe4; color:#fff; padding:1px 6px; border-radius:4px; font-size:7.5pt; font-weight:700; }
+  .mono { font-family: Consolas, "DejaVu Sans Mono", monospace; font-size:8.5pt; }
+  .muted { color:var(--muted); }
+  .page-break { page-break-before: always; }
+  a { color:var(--brand); text-decoration:none; }
+</style>
+</head>
+<body style="--gc: {{ grade_color }};">
+
+<section class="cover">
+  <div>
+    <div class="tag">Rapport d'audit de sécurité · Confidentiel</div>
+    <h1>{{ a.name }}<br><span>{{ a.target }}</span></h1>
+    <div class="meta">
+      <div><small>Date</small>{{ a.date_fr }}</div>
+      <div><small>Durée</small>{{ a.duration }}</div>
+      <div><small>Organisation</small>{{ cfg.organisation or "—" }}</div>
+      <div><small>Auditeur</small>{{ cfg.auditeur or "—" }}</div>
+      <div><small>Machines analysées</small>{{ hosts|length }}</div>
+      <div><small>Services ouverts</small>{{ n_ports }}</div>
+    </div>
+  </div>
+  <div>
+    <div class="grade-wrap">
+      <div class="ring"><b>{{ g.letter }}</b><small>{{ g.score }}/100</small></div>
+      <div class="grade-txt"><h3>Niveau de sécurité : {{ g.label }}</h3><p>Note calculée à partir de la gravité des constats. Toute faille critique plafonne la note à D.</p></div>
+    </div>
+    <div class="counts">
+      {% for k, label in [("critique","Critiques"),("élevée","Élevés"),("moyenne","Moyens"),("faible","Faibles")] %}
+      <div class="cnt"><b style="color:var(--{{ {'critique':'crit','élevée':'high','moyenne':'med','faible':'low'}[k] }})">{{ g.counts[k] }}</b><small>{{ label }}</small></div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="foot">Généré par CYBER AUDIT v{{ version }} · Audit non intrusif réalisé avec l'autorisation déclarée du propriétaire du périmètre · Identifiant {{ a.id }}</div>
+</section>
+
+<h2><span class="n">1</span>Synthèse</h2>
+<div class="card summary">
+  <p>{{ s.resume }}</p>
+  <div class="src">{{ s.source }}</div>
+</div>
+<div class="card">
+  <b>Répartition des constats</b>
+  <div class="bar">
+    {% for k, c in [("critique","--crit"),("élevée","--high"),("moyenne","--med"),("faible","--low"),("info","--info")] %}
+      {% if g.counts[k] %}<span style="width:{{ (g.counts[k] / total * 100)|round(1) }}%; background:var({{ c }})"></span>{% endif %}
+    {% endfor %}
+  </div>
+  <div class="legend">
+    {% for k, c in [("critique","--crit"),("élevée","--high"),("moyenne","--med"),("faible","--low"),("info","--info")] %}<span><i style="background:var({{ c }})"></i>{{ k|capitalize }} : {{ g.counts[k] }}</span>{% endfor %}
+  </div>
+</div>
+<div class="grid2">
+  <div class="card"><b>Plan d'action prioritaire</b><ol class="plan">{% for p in s.plan %}<li>{{ p }}</li>{% endfor %}</ol></div>
+  <div class="card"><b>Points forts</b>
+    {% if s.points_forts %}<ul class="good">{% for p in s.points_forts %}<li>{{ p }}</li>{% endfor %}</ul>{% else %}<p class="muted">—</p>{% endif %}
+    <b style="display:block;margin-top:10px">Veille vulnérabilités utilisée</b>
+    <ul class="good">{% for k, v in intel.items() %}<li>{% if v %}{{ v }}{% elif v is none %}{{ k|upper }} : non nécessaire{% else %}<span style="color:var(--crit)">{{ k|upper }} indisponible (pas d'accès Internet)</span>{% endif %}</li>{% endfor %}</ul>
+  </div>
+</div>
+
+<h2><span class="n">2</span>Machines et services découverts</h2>
+<table>
+  <tr><th>Machine</th><th>Système</th><th>Services ouverts</th><th>Constats</th></tr>
+  {% for h in hosts %}
+  <tr>
+    <td><b class="mono">{{ h.ip }}</b>{% if h.hostname %}<br><span class="muted">{{ h.hostname }}</span>{% endif %}{% if h.vendor %}<br><span class="muted">{{ h.vendor }}</span>{% endif %}</td>
+    <td>{{ h.os or "—" }}</td>
+    <td class="mono">{% for p in h.ports %}{{ p.port }}/{{ p.service }}{% if p.product %} – {{ p.product }} {{ p.version }}{% endif %}<br>{% else %}aucun{% endfor %}</td>
+    <td>{% set hf = by_host.get(h.ip, []) %}{% for sev in ["critique","élevée","moyenne","faible"] %}{% set n = hf|selectattr("severity","equalto",sev)|list|length %}{% if n %}<span class="sev sev-{{ sev }}">{{ n }} {{ sev }}</span> {% endif %}{% endfor %}{% if not hf %}<span class="muted">aucun</span>{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2 class="page-break"><span class="n">3</span>Constats détaillés</h2>
+{% for f in findings if f.severity != "info" %}
+<div class="card finding">
+  <h3><span class="sev sev-{{ f.severity }}">{{ f.severity }}</span>{{ f.title }}</h3>
+  <div class="where">{{ f.host }}{% if f.port %}:{{ f.port }}{% endif %} · {{ f.category }}{% if f.confidence %} · fiabilité : {{ f.confidence }}{% endif %}</div>
+  <p>{{ f.description }}</p>
+  {% if f.cve_details %}
+  <div class="lbl">Vulnérabilités les plus importantes</div>
+  <table>
+    <tr><th>CVE</th><th>CVSS</th><th>Exploitation</th><th>Publiée</th><th>Description</th></tr>
+    {% for c in f.cve_details[:8] %}
+    <tr>
+      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/{{ c.id }}">{{ c.id }}</a></td>
+      <td><b>{{ c.cvss if c.cvss is not none else "?" }}</b></td>
+      <td>{% if c.kev %}<span class="kev">EXPLOITÉE</span>{% if c.ransomware %} rançongiciels{% endif %}{% endif %}{% if c.epss is not none %}<br>EPSS {{ (c.epss * 100)|round(1) }} %{% endif %}</td>
+      <td>{{ c.published }}{% if c.recent %} <span class="new">RÉCENTE</span>{% endif %}</td>
+      <td style="font-size:8pt">{{ c.description[:230] }}{% if c.description|length > 230 %}…{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% if f.cve_details|length < f.cves|length %}<p class="muted" style="font-size:8.5pt">+ {{ f.cves|length - f.cve_details[:8]|length }} autre(s) CVE : {{ f.cves[8:30]|join(", ") }}{% if f.cves|length > 30 %}…{% endif %}</p>{% endif %}
+  {% elif f.evidence %}
+  <div class="lbl">Preuve</div><pre>{{ f.evidence }}</pre>
+  {% endif %}
+  <div class="fix"><b>Correction recommandée : </b>{{ f.remediation }}</div>
+</div>
+{% else %}
+<div class="card">Aucun constat : félicitations !</div>
+{% endfor %}
+
+{% set infos = findings|selectattr("severity","equalto","info")|list %}
+{% if infos %}
+<h2><span class="n">4</span>Informations</h2>
+<table><tr><th>Machine</th><th>Constat</th><th>Remarque</th></tr>
+{% for f in infos %}<tr><td class="mono">{{ f.host }}{% if f.port %}:{{ f.port }}{% endif %}</td><td>{{ f.title }}</td><td>{{ f.description }}</td></tr>{% endfor %}
+</table>
+{% endif %}
+
+<h2 class="page-break"><span class="n">{{ 5 if infos else 4 }}</span>Méthodologie et limites</h2>
+<div class="card">
+  <p><b>Périmètre :</b> {{ a.target }} — profil « {{ a.profile_label }} ». L'utilisateur a certifié être autorisé à auditer ce périmètre le {{ a.date_fr }}.</p>
+  <p><b>Étapes :</b> découverte des machines actives (Nmap -sn) ; inventaire des ports et versions des services (Nmap -sV) avec scripts de la catégorie « safe » uniquement ;
+     contrôles web et TLS en lecture seule (en-têtes, HTTPS, fichiers sensibles exposés, versions TLS, certificats) ;
+     corrélation des versions avec la base NVD, le catalogue CISA KEV des failles activement exploitées et le score EPSS ; synthèse par IA locale.</p>
+  <p><b>Ce que cet audit ne fait pas :</b> aucune exploitation, aucun test de mots de passe par force brute, aucun déni de service, aucune modification des systèmes.
+     Les correspondances CVE basées sur les versions peuvent produire des faux positifs (correctifs rétroportés par les distributions Linux) et doivent être confirmées.
+     Un audit automatisé ne remplace pas un test d'intrusion manuel.</p>
+</div>
+<div class="card">
+  <b>Commandes exécutées</b>
+  {% for h in hosts %}<pre>{{ h.command }}</pre>{% endfor %}
+</div>
+</body>
+</html>

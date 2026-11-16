@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CYBER AUDIT</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4l22 9v16c0 15-10 26-22 31C20 55 10 44 10 29V13z' fill='none' stroke='%2300d4ff' stroke-width='5'/%3E%3Cpath d='M22 32l7 7 13-14' fill='none' stroke='%2300d4ff' stroke-width='5'/%3E%3C/svg%3E">
+<style>
+  :root { --bg:#050b14; --panel:rgba(12,24,40,.72); --line:rgba(0,212,255,.16); --line2:rgba(0,212,255,.4); --cyan:#00d4ff; --blue:#2f7bff;
+          --text:#e2f3ff; --muted:#7f9bb3; --crit:#ff3d6e; --high:#ff7a2f; --med:#ffc23d; --low:#3da5ff; --ok:#2fe39a; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background: radial-gradient(ellipse at 15% -10%, rgba(47,123,255,.25), transparent 50%),
+         radial-gradient(ellipse at 100% 0%, rgba(0,212,255,.18), transparent 45%), var(--bg);
+         color:var(--text); font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; font-size:15px; }
+  body::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.5;
+         background: linear-gradient(rgba(0,212,255,.04) 1px, transparent 1px) 0 0/40px 40px, linear-gradient(90deg, rgba(0,212,255,.04) 1px, transparent 1px) 0 0/40px 40px;
+         mask-image: linear-gradient(180deg, black, transparent 70%); }
+  button, input, select { font:inherit; color:inherit; }
+  .wrap { max-width:1080px; margin:0 auto; padding:26px 20px 60px; position:relative; }
+  header { display:flex; align-items:center; gap:14px; margin-bottom:26px; }
+  .logo { width:40px; height:40px; display:grid; place-items:center; border-radius:12px; background:linear-gradient(135deg, rgba(0,212,255,.25), rgba(47,123,255,.25)); border:1px solid var(--line2); box-shadow:0 0 24px rgba(0,212,255,.25); }
+  .logo svg { width:24px; }
+  h1 { margin:0; font-size:21px; letter-spacing:.22em; font-weight:800; }
+  h1 span { color:var(--cyan); }
+  .sub { color:var(--muted); font-size:13px; }
+  header .right { margin-left:auto; display:flex; gap:8px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:22px; backdrop-filter: blur(12px); box-shadow:0 20px 50px rgba(0,0,0,.35); margin-bottom:20px; }
+  .panel h2 { margin:0 0 4px; font-size:18px; }
+  .panel > p.hint { margin:0 0 18px; color:var(--muted); font-size:14px; }
+  .form { display:grid; grid-template-columns: 1.3fr 1fr 1fr; gap:14px; }
+  label.f { display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--muted); }
+  input[type=text], input[type=password], select, textarea { background:rgba(2,10,20,.75); border:1px solid var(--line); border-radius:11px; padding:12px 14px; outline:none; width:100%; transition:.2s; }
+  input:focus, select:focus { border-color:var(--line2); box-shadow:0 0 0 4px rgba(0,212,255,.08); }
+  .big { font-size:18px; font-family: Consolas, "Cascadia Code", monospace; letter-spacing:.03em; }
+  .auth { display:flex; gap:12px; align-items:flex-start; margin:18px 0; padding:14px 16px; border-radius:12px; background:rgba(255,194,61,.07); border:1px solid rgba(255,194,61,.3); font-size:14px; cursor:pointer; }
+  .auth input { width:20px; height:20px; accent-color:var(--cyan); margin-top:1px; flex:none; }
+  .btn { border:1px solid var(--line2); background:rgba(0,212,255,.08); color:var(--cyan); border-radius:11px; padding:10px 18px; cursor:pointer; font-weight:600; transition:.2s; text-decoration:none; display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
+  .btn:hover:not(:disabled) { background:rgba(0,212,255,.18); box-shadow:0 0 18px rgba(0,212,255,.25); }
+  .btn:disabled { opacity:.4; cursor:default; }
+  .btn.primary { background:linear-gradient(135deg, var(--cyan), var(--blue)); color:#03111d; border:0; padding:14px 26px; font-size:16px; box-shadow:0 8px 30px rgba(0,150,255,.35); }
+  .btn.sm { padding:6px 12px; font-size:13px; }
+  .btn.ghost { background:transparent; border-color:var(--line); color:var(--muted); }
+  .btn.danger { color:#ff8aa6; border-color:rgba(255,61,110,.4); background:transparent; }
+  .err { color:#ff8aa6; margin-top:10px; font-size:14px; min-height:20px; }
+  /* progression */
+  .run-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .pbar { height:10px; background:rgba(127,155,179,.18); border-radius:10px; overflow:hidden; margin:14px 0 18px; }
+  .pbar span { display:block; height:100%; background:linear-gradient(90deg, var(--cyan), var(--blue)); box-shadow:0 0 14px var(--cyan); transition: width .6s; position:relative; }
+  .pbar span::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent); animation: shine 1.6s infinite; }
+  .steps { display:grid; grid-template-columns: repeat(6, 1fr); gap:8px; margin-bottom:16px; }
+  .st { padding:10px; border-radius:11px; border:1px solid var(--line); font-size:12.5px; color:var(--muted); display:flex; gap:8px; align-items:center; }
+  .st i { width:20px; height:20px; border-radius:50%; border:2px solid currentColor; display:grid; place-items:center; font-style:normal; font-size:11px; flex:none; }
+  .st.done { color:var(--ok); border-color:rgba(47,227,154,.35); } .st.now { color:var(--cyan); border-color:var(--line2); box-shadow: inset 0 0 14px rgba(0,212,255,.12); }
+  .st.now i { animation: pulse 1s infinite; }
+  .log { font-family: Consolas, monospace; font-size:12.5px; background:rgba(0,0,0,.35); border-radius:11px; padding:12px 14px; max-height:190px; overflow:auto; color:#b9d9ee; }
+  .log div span { color:var(--muted); margin-right:8px; }
+  /* résultat */
+  .result { display:flex; gap:26px; align-items:center; flex-wrap:wrap; }
+  .ring { --p:0; --c:var(--cyan); width:130px; height:130px; border-radius:50%; display:grid; place-items:center; position:relative;
+          background: conic-gradient(var(--c) calc(var(--p) * 1%), rgba(127,155,179,.18) 0); flex:none; }
+  .ring::after { content:""; position:absolute; inset:11px; border-radius:50%; background:#0a1626; }
+  .ring b { position:relative; z-index:1; font-size:48px; color:var(--c); line-height:1; } .ring small { position:absolute; z-index:1; bottom:22px; font-size:12px; color:var(--muted); }
+  .counts { display:flex; gap:10px; flex-wrap:wrap; }
+  .cnt { min-width:90px; padding:10px 14px; border-radius:12px; border:1px solid var(--line); }
+  .cnt b { font-size:24px; display:block; } .cnt small { color:var(--muted); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; }
+  .actions { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  /* historique */
+  .hist { display:flex; flex-direction:column; gap:8px; }
+  .h-item { display:grid; grid-template-columns: 54px 1fr auto auto; gap:14px; align-items:center; padding:12px 14px; border-radius:13px; border:1px solid var(--line); background:rgba(2,10,20,.4); }
+  .gbadge { width:46px; height:46px; border-radius:12px; display:grid; place-items:center; font-weight:800; font-size:22px; border:2px solid currentColor; }
+  .h-item .t { font-weight:600; } .h-item .m { color:var(--muted); font-size:13px; font-family:Consolas, monospace; }
+  .pills { display:flex; gap:6px; } .pill { font-size:11.5px; padding:2px 8px; border-radius:20px; font-weight:700; color:#06121e; }
+  .empty { color:var(--muted); text-align:center; padding:20px; }
+  /* connexion */
+  .login { max-width:400px; margin:12vh auto 0; text-align:center; }
+  .login .logo { margin:0 auto 16px; width:64px; height:64px; border-radius:18px; } .login .logo svg { width:36px; }
+  .login form { display:flex; flex-direction:column; gap:12px; margin-top:22px; }
+  /* réglages */
+  dialog { background:#0a1626; color:var(--text); border:1px solid var(--line2); border-radius:18px; padding:24px; width:min(560px, 92vw); }
+  dialog::backdrop { background:rgba(0,0,0,.6); backdrop-filter:blur(4px); }
+  dialog .f { margin-bottom:12px; }
+  .warn { padding:12px 14px; border-radius:12px; border:1px solid rgba(255,61,110,.4); background:rgba(255,61,110,.08); color:#ffb3c4; margin-bottom:16px; }
+  @keyframes pulse { 50% { opacity:.35; } } @keyframes shine { from { transform:translateX(-100%); } to { transform:translateX(100%); } }
+  @media (max-width: 800px) { .form { grid-template-columns:1fr; } .steps { grid-template-columns: repeat(2, 1fr); } .h-item { grid-template-columns: 46px 1fr; } .h-item .pills, .h-item .acts { grid-column: 2; } }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- Connexion -->
+  <section id="login" class="login" hidden>
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M12 2l8 3.5v6c0 5.3-3.5 9.2-8 10.5-4.5-1.3-8-5.2-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
+    <h1>CYBER <span>AUDIT</span></h1>
+    <div class="sub">Audit de sécurité automatique de ton lab</div>
+    <form id="loginForm">
+      <input type="password" id="pw" placeholder="Mot de passe" autofocus autocomplete="current-password">
+      <button class="btn primary" type="submit">Se connecter</button>
+      <div class="err" id="loginErr"></div>
+    </form>
+  </section>
+
+  <!-- Application -->
+  <section id="app" hidden>
+    <header>
+      <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M12 2l8 3.5v6c0 5.3-3.5 9.2-8 10.5-4.5-1.3-8-5.2-8-10.5v-6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
+      <div><h1>CYBER <span>AUDIT</span></h1><div class="sub">Scan · failles récentes · rapport PDF</div></div>
+      <div class="right"><button class="btn ghost sm" id="openSettings">⚙ Réglages</button><button class="btn ghost sm" id="logout">Déconnexion</button></div>
+    </header>
+
+    <div class="warn" id="noNmap" hidden>Nmap n'est pas installé sur cette machine : l'audit ne peut pas démarrer. Utilise l'image Docker ou installe nmap.</div>
+
+    <div class="panel" id="newPanel">
+      <h2>Nouvel audit</h2>
+      <p class="hint">Entre l'adresse d'une machine ou de tout un réseau. L'outil trouve les services, vérifie les failles connues et récentes, puis rédige le rapport.</p>
+      <form id="auditForm">
+        <div class="form">
+          <label class="f">Cible (IP ou réseau)<input type="text" id="cible" class="big" placeholder="10.10.0.0/24" required autocomplete="off"></label>
+          <label class="f">Nom de l'audit<input type="text" id="nom" placeholder="Lab maison – novembre"></label>
+          <label class="f">Profondeur<select id="profil"></select></label>
+        </div>
+        <label class="auth"><input type="checkbox" id="autorisation">
+          <span>Je certifie être <b>propriétaire</b> de cette cible ou disposer d'une <b>autorisation écrite</b> pour l'auditer. Les tests restent non intrusifs : aucune exploitation, aucune attaque de mot de passe.</span></label>
+        <button class="btn primary" type="submit" id="go">▶ Lancer l'audit</button>
+        <div class="err" id="formErr"></div>
+      </form>
+    </div>
+
+    <div class="panel" id="runPanel" hidden>
+      <div class="run-head"><div><h2 id="runTitle">Audit en cours</h2><div class="sub" id="runTarget"></div></div><b id="runPct" style="font-size:22px;color:var(--cyan)">0 %</b></div>
+      <div class="pbar"><span id="runBar" style="width:0%"></span></div>
+      <div class="steps" id="steps"></div>
+      <div class="log" id="log"></div>
+      <div id="resultBox" hidden style="margin-top:20px"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Historique des audits</h2>
+      <p class="hint">Tous les rapports restent sur ta machine.</p>
+      <div class="hist" id="hist"></div>
+    </div>
+  </section>
+</div>
+
+<dialog id="settings">
+  <h2 style="margin-top:0">Réglages</h2>
+  <label class="f">Réseaux autorisés (un par ligne)<textarea id="sCibles" rows="4" style="font-family:Consolas,monospace"></textarea></label>
+  <label class="f">Adresse de l'IA locale (Ollama)<input type="text" id="sOllama"></label>
+  <label class="f">Modèle d'IA<input type="text" id="sModele"></label>
+  <label class="f">Clé API NVD (facultatif, accélère la veille CVE)<input type="password" id="sNvd" placeholder="laisser vide pour ne pas changer"></label>
+  <label class="f">Auditeur (affiché sur le rapport)<input type="text" id="sAuditeur"></label>
+  <label class="f">Organisation<input type="text" id="sOrga"></label>
+  <div class="actions"><button class="btn primary" id="saveSettings">Enregistrer</button><button class="btn ghost" onclick="settings.close()">Annuler</button></div>
+</dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const SEV = { critique: "var(--crit)", "élevée": "var(--high)", moyenne: "var(--med)", faible: "var(--low)" };
+const GC = { A: "#22c55e", B: "#84cc16", C: "#eab308", D: "#f97316", E: "#ef4444", F: "#dc2626" };
+let current = null, timer = null, info = null;
+
+async function api(path, opts = {}) {
+  const r = await fetch(path, { method: opts.method || "GET", headers: { "Content-Type": "application/json", "X-Requested-With": "cyber-audit" },
+                                body: opts.body ? JSON.stringify(opts.body) : undefined, credentials: "same-origin" });
+  if (r.status === 401 && path !== "/api/login") { show("login"); throw new Error("Connexion requise"); }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.detail || r.statusText);
+  return data;
+}
+function show(which) { $("login").hidden = which !== "login"; $("app").hidden = which !== "app"; }
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+async function boot() {
+  try {
+    info = await api("/api/info");
+    show("app");
+    $("profil").innerHTML = Object.entries(info.profiles).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+    $("noNmap").hidden = info.tools.nmap;
+    await refresh();
+  } catch (e) { show("login"); }
+}
+
+$("loginForm").onsubmit = async (e) => {
+  e.preventDefault();
+  try { await api("/api/login", { method: "POST", body: { password: $("pw").value } }); $("loginErr").textContent = ""; boot(); }
+  catch (err) { $("loginErr").textContent = err.message; }
+};
+$("logout").onclick = async () => { await api("/api/logout", { method: "POST" }); show("login"); };
+
+$("auditForm").onsubmit = async (e) => {
+  e.preventDefault();
+  $("formErr").textContent = "";
+  if (!$("autorisation").checked) { $("formErr").textContent = "Coche la case d'autorisation pour continuer."; return; }
+  $("go").disabled = true;
+  try {
+    const r = await api("/api/audits", { method: "POST", body: { cible: $("cible").value.trim(), nom: $("nom").value.trim(), profil: $("profil").value, autorisation: true } });
+    $("autorisation").checked = false;
+    follow(r.id);
+  } catch (err) { $("formErr").textContent = err.message; }
+  $("go").disabled = false;
+};
+
+function follow(id) {
+  current = id;
+  $("runPanel").hidden = false;
+  $("resultBox").hidden = true;
+  clearInterval(timer);
+  const tick = async () => {
+    let a;
+    try { a = await api(`/api/audits/${id}`); } catch { return; }
+    $("runTitle").textContent = a.status === "en cours" ? "Audit en cours…" : a.status === "erreur" ? "Audit interrompu" : "Audit terminé";
+    $("runTarget").textContent = `${a.name} · ${a.target}`;
+    $("runPct").textContent = `${a.progress} %`;
+    $("runBar").style.width = `${a.progress}%`;
+    $("steps").innerHTML = a.steps.map((s, i) => {
+      const cls = a.status === "terminé" || i < a.step ? "done" : i === a.step && a.status === "en cours" ? "now" : "";
+      return `<div class="st ${cls}"><i>${cls === "done" ? "✓" : i + 1}</i>${esc(s)}</div>`;
+    }).join("");
+    $("log").innerHTML = a.log.map((l) => `<div><span>${l.t}</span>${esc(l.msg)}</div>`).join("");
+    $("log").scrollTop = 1e6;
+    if (a.status !== "en cours") {
+      clearInterval(timer);
+      if (a.status === "terminé") renderResult(a);
+      else { $("resultBox").hidden = false; $("resultBox").innerHTML = `<div class="warn">${esc(a.error || "Erreur inconnue")}</div>`; }
+      refresh();
+    }
+  };
+  tick();
+  timer = setInterval(tick, 1500);
+}
+
+function renderResult(a) {
+  const g = a.grade, c = g.counts;
+  $("resultBox").hidden = false;
+  $("resultBox").innerHTML = `
+    <div class="result">
+      <div class="ring" style="--p:${g.score};--c:${GC[g.letter]}"><b>${g.letter}</b><small>${g.score}/100</small></div>
+      <div style="flex:1;min-width:260px">
+        <h2 style="margin:0 0 6px">Niveau de sécurité : ${esc(g.label)}</h2>
+        <p style="margin:0 0 12px;color:var(--muted)">${esc(a.summary.resume)}</p>
+        <div class="counts">${[["critique","Critiques"],["élevée","Élevés"],["moyenne","Moyens"],["faible","Faibles"]].map(([k,l]) => `<div class="cnt"><b style="color:${SEV[k]}">${c[k]}</b><small>${l}</small></div>`).join("")}</div>
+        <div class="actions">
+          ${a.pdf ? `<a class="btn primary" href="/api/audits/${a.id}/rapport.pdf">⬇ Télécharger le rapport PDF</a>` : ""}
+          <a class="btn" href="/api/audits/${a.id}/rapport.html" target="_blank" rel="noopener">Voir le rapport</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function refresh() {
+  const list = await api("/api/audits");
+  $("hist").innerHTML = list.length ? list.map((a) => `
+    <div class="h-item">
+      <div class="gbadge" style="color:${GC[a.grade] || "var(--muted)"}">${a.grade || (a.status === "en cours" ? "…" : "!")}</div>
+      <div><div class="t">${esc(a.name)}</div><div class="m">${esc(a.target)} · ${esc(a.date_fr)}${a.status !== "terminé" ? " · " + esc(a.status) : ""}</div></div>
+      <div class="pills">${a.counts ? [["critique"],["élevée"],["moyenne"]].map(([k]) => a.counts[k] ? `<span class="pill" style="background:${SEV[k]}">${a.counts[k]} ${k}</span>` : "").join("") : ""}</div>
+      <div class="acts" style="display:flex;gap:6px">
+        ${a.status === "en cours" ? `<button class="btn sm" onclick="follow('${a.id}')">Suivre</button>` : ""}
+        ${a.pdf ? `<a class="btn sm" href="/api/audits/${a.id}/rapport.pdf">PDF</a>` : ""}
+        ${a.status === "terminé" ? `<a class="btn sm ghost" href="/api/audits/${a.id}/rapport.html" target="_blank" rel="noopener">Voir</a>` : ""}
+        ${a.status !== "en cours" ? `<button class="btn sm danger" onclick="del('${a.id}')">✕</button>` : ""}
+      </div>
+    </div>`).join("") : `<div class="empty">Aucun audit pour l'instant. Lance le premier ci-dessus !</div>`;
+  const running = list.find((a) => a.status === "en cours");
+  if (running && current !== running.id) follow(running.id);
+}
+async function del(id) { if (confirm("Supprimer cet audit et son rapport ?")) { await api(`/api/audits/${id}`, { method: "DELETE" }); refresh(); } }
+
+$("openSettings").onclick = async () => {
+  info = await api("/api/info");
+  const s = info.settings;
+  $("sCibles").value = s.cibles_autorisees.join("\n"); $("sOllama").value = s.ollama_url; $("sModele").value = s.modele_ia;
+  $("sAuditeur").value = s.auditeur; $("sOrga").value = s.organisation; $("sNvd").value = "";
+  $("sNvd").placeholder = s.nvd_api_key_set ? "clé enregistrée (laisser vide pour ne pas changer)" : "facultatif";
+  settings.showModal();
+};
+$("saveSettings").onclick = async () => {
+  await api("/api/settings", { method: "PUT", body: { cibles_autorisees: $("sCibles").value.split("\n").map((x) => x.trim()).filter(Boolean),
+    ollama_url: $("sOllama").value, modele_ia: $("sModele").value, nvd_api_key: $("sNvd").value, auditeur: $("sAuditeur").value, organisation: $("sOrga").value } });
+  settings.close();
+};
+boot();
+</script>
+</body>
+</html>
