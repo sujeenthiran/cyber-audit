@@ -43,7 +43,7 @@ Tu donnes une IP ou un réseau. L'outil trouve les machines et les services, che
 Il faut juste une machine Linux avec **Docker** (une VM Debian/Ubuntu suffit).
 
 ```bash
-git clone https://github.com/<ton-compte>/cyber-audit.git
+git clone https://github.com/sujeenthiran/cyber-audit.git
 cd cyber-audit
 ./install.sh
 ```
