@@ -36,7 +36,7 @@ def test_service_findings():
     h = parse_nmap_xml(XML)[0]
     titles = {f["title"] for f in checks.service_findings(h)}
     for t in ["FTP non chiffré", "Connexion FTP anonyme autorisée", "Algorithmes SSH faibles acceptés", "Redis accessible",
-              "Signature SMB non obligatoire", "Vulnérabilité détectée par le script http-vuln-cve2021-41773"]:
+              "Signature SMB non obligatoire", "Vulnérabilité confirmée (script http-vuln-cve2021-41773)"]:
         assert t in titles, t
 
 
@@ -67,6 +67,7 @@ def test_vulns(monkeypatch):
     assert apache["severity"] == "critique" and apache["cve_details"][0]["kev"]
     ssh = next(f for f in fs if "OpenSSH" in f["title"])
     assert ssh["confidence"] == "à confirmer"  # Debian : backport possible
+    assert ssh["severity"] == "moyenne" and "à vérifier" in ssh["title"]
     assert any(c["recent"] for c in ssh["cve_details"])
     assert intel.sources["nvd"] and intel.sources["epss"]
 
@@ -89,3 +90,17 @@ def test_grade_and_report(tmp_path, monkeypatch):
     if os.environ.get("CHROME_PATH"):
         assert report.to_pdf(tmp_path / "r.html", tmp_path / "r.pdf") == "chromium"
         assert (tmp_path / "r.pdf").read_bytes()[:4] == b"%PDF"
+
+
+def test_nse_likely_and_slowloris():
+    f = checks._nse_finding("10.0.0.1", 443, "http-slowloris-check", "VULNERABLE:\n  State: LIKELY VULNERABLE\n  IDs: CVE:CVE-2007-6750")
+    assert f["severity"] == "faible" and f["cves"] == ["CVE-2007-6750"]
+    f = checks._nse_finding("10.0.0.1", 80, "http-foo", "State: LIKELY VULNERABLE")
+    assert f["severity"] == "moyenne" and f["confidence"] == "probable"
+    f = checks._nse_finding("10.0.0.1", 80, "http-foo", "State: VULNERABLE")
+    assert f["severity"] == "élevée"
+
+
+def test_grade_cap_critical_is_d():
+    g = scoring.grade([{"severity": "critique"}])
+    assert g["letter"] == "D" and g["score"] == 59

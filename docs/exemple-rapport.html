@@ -23,7 +23,7 @@
   .cover .meta div small { display:block; color:#7fa6c2; font-size:8.5pt; text-transform:uppercase; letter-spacing:.12em; }
   .grade-wrap { display:flex; align-items:center; gap:26px; }
   .ring { width:150px; height:150px; border-radius:50%; display:grid; place-items:center; position:relative;
-          background: conic-gradient(var(--gc) calc(16 * 1%), rgba(255,255,255,.12) 0); }
+          background: conic-gradient(var(--gc) calc(22 * 1%), rgba(255,255,255,.12) 0); }
   .ring::after { content:""; position:absolute; inset:12px; border-radius:50%; background:#07121f; }
   .ring b { position:relative; z-index:1; font-size:56pt; font-weight:800; color:var(--gc); line-height:1; }
   .ring small { position:absolute; bottom:26px; z-index:1; color:#9cc3dc; font-size:9pt; }
@@ -63,7 +63,7 @@
   a { color:var(--brand); text-decoration:none; }
 </style>
 </head>
-<body style="--gc: #dc2626;">
+<body style="--gc: #ef4444;">
 
 <section class="cover">
   <div>
@@ -80,16 +80,16 @@
   </div>
   <div>
     <div class="grade-wrap">
-      <div class="ring"><b>F</b><small>16/100</small></div>
-      <div class="grade-txt"><h3>Niveau de sécurité : Critique</h3><p>Note calculée à partir de la gravité des constats. Toute faille critique plafonne la note à D.</p></div>
+      <div class="ring"><b>E</b><small>22/100</small></div>
+      <div class="grade-txt"><h3>Niveau de sécurité : Mauvais</h3><p>Note calculée à partir de la gravité des constats. Toute faille critique plafonne la note à D.</p></div>
     </div>
     <div class="counts">
       
       <div class="cnt"><b style="color:var(--crit)">1</b><small>Critiques</small></div>
       
-      <div class="cnt"><b style="color:var(--high)">5</b><small>Élevés</small></div>
+      <div class="cnt"><b style="color:var(--high)">4</b><small>Élevés</small></div>
       
-      <div class="cnt"><b style="color:var(--med)">2</b><small>Moyens</small></div>
+      <div class="cnt"><b style="color:var(--med)">3</b><small>Moyens</small></div>
       
       <div class="cnt"><b style="color:var(--low)">1</b><small>Faibles</small></div>
       
@@ -100,7 +100,7 @@
 
 <h2><span class="n">1</span>Synthèse</h2>
 <div class="card summary">
-  <p>L&#39;audit a analysé 1 machine(s) et 4 service(s) réseau ouverts. La note globale est F (critique, 16/100). Il a relevé 1 problème(s) critique(s), 5 élevé(s), 2 moyen(s) et 1 faible(s). Les points critiques et élevés doivent être corrigés en priorité, car ils peuvent permettre une intrusion ou une fuite de données.</p>
+  <p>L&#39;audit a analysé 1 machine(s) et 4 service(s) réseau ouverts. La note globale est E (mauvais, 22/100). Il a relevé 1 problème(s) critique(s), 4 élevé(s), 3 moyen(s) et 1 faible(s). Les points critiques et élevés doivent être corrigés en priorité, car ils peuvent permettre une intrusion ou une fuite de données.</p>
   <div class="src">Synthèse automatique (IA locale indisponible)</div>
 </div>
 <div class="card">
@@ -109,9 +109,9 @@
     
       <span style="width:11.1%; background:var(--crit)"></span>
     
-      <span style="width:55.6%; background:var(--high)"></span>
+      <span style="width:44.4%; background:var(--high)"></span>
     
-      <span style="width:22.2%; background:var(--med)"></span>
+      <span style="width:33.3%; background:var(--med)"></span>
     
       <span style="width:11.1%; background:var(--low)"></span>
     
@@ -119,11 +119,11 @@
     
   </div>
   <div class="legend">
-    <span><i style="background:var(--crit)"></i>Critique : 1</span><span><i style="background:var(--high)"></i>Élevée : 5</span><span><i style="background:var(--med)"></i>Moyenne : 2</span><span><i style="background:var(--low)"></i>Faible : 1</span><span><i style="background:var(--info)"></i>Info : 0</span>
+    <span><i style="background:var(--crit)"></i>Critique : 1</span><span><i style="background:var(--high)"></i>Élevée : 4</span><span><i style="background:var(--med)"></i>Moyenne : 3</span><span><i style="background:var(--low)"></i>Faible : 1</span><span><i style="background:var(--info)"></i>Info : 0</span>
   </div>
 </div>
 <div class="grid2">
-  <div class="card"><b>Plan d'action prioritaire</b><ol class="plan"><li>Vulnérabilités connues : Apache httpd 2.4.49 (10.10.0.50:8099) : Mettre à jour Apache httpd vers la dernière version stable de l&#39;éditeur, puis relancer l&#39;audit.</li><li>Connexion FTP anonyme autorisée (10.10.0.50:21) : Désactiver l&#39;accès anonyme..</li><li>Vulnérabilités connues : OpenSSH 8.4p1 Debian 5+deb11u1 (10.10.0.50:22) : Mettre à jour OpenSSH vers la dernière version stable de l&#39;éditeur, puis relancer l&#39;audit..</li><li>Redis accessible (10.10.0.50:6379) : Lier Redis à 127.0.0.1, activer requirepass / ACL..</li><li>FTP non chiffré (10.10.0.50:21) : Remplacer par SFTP/FTPS ou restreindre au réseau d&#39;administration..</li><li>Signature SMB non obligatoire (10.10.0.50:445) : Activer « Microsoft network server: Digitally sign communications (always) »..</li></ol></div>
+  <div class="card"><b>Plan d'action prioritaire</b><ol class="plan"><li>Vulnérabilités connues : Apache httpd 2.4.49 (10.10.0.50:8099) : Mettre à jour Apache httpd vers la dernière version stable de l&#39;éditeur, puis relancer l&#39;audit.</li><li>Connexion FTP anonyme autorisée (10.10.0.50:21) : Désactiver l&#39;accès anonyme..</li><li>Redis accessible (10.10.0.50:6379) : Lier Redis à 127.0.0.1, activer requirepass / ACL..</li><li>Vulnérabilité confirmée (script http-vuln-cve2021-41773) (10.10.0.50:8099) : Appliquer le correctif de l&#39;éditeur ou mettre à jour le service..</li><li>FTP non chiffré (10.10.0.50:21) : Remplacer par SFTP/FTPS ou restreindre au réseau d&#39;administration..</li><li>Vulnérabilités possibles (à vérifier) : OpenSSH 8.4p1 Debian 5+deb11u1 (10.10.0.50:22) : Installer les mises à jour de sécurité du système (Debian/Ubuntu : sudo apt update &amp;&amp; sudo apt full-upgrade), puis lire l&#39;avis de sécurité de la distribution pour chaque CVE listée..</li></ol></div>
   <div class="card"><b>Points forts</b>
     <ul class="good"><li>Surface d&#39;attaque réduite : peu de services exposés par machine.</li></ul>
     <b style="display:block;margin-top:10px">Veille vulnérabilités utilisée</b>
@@ -139,7 +139,7 @@
     <td><b class="mono">10.10.0.50</b><br><span class="muted">lab-web.sujee.lab</span></td>
     <td>Linux 5.0 - 5.14 (96 %)</td>
     <td class="mono">21/ftp – vsftpd 3.0.3<br>22/ssh – OpenSSH 8.4p1 Debian 5+deb11u1<br>6379/redis – Redis key-value store 5.0.7<br>8099/http – Apache httpd 2.4.49<br></td>
-    <td><span class="sev sev-critique">1 critique</span> <span class="sev sev-élevée">5 élevée</span> <span class="sev sev-moyenne">2 moyenne</span> <span class="sev sev-faible">1 faible</span> </td>
+    <td><span class="sev sev-critique">1 critique</span> <span class="sev sev-élevée">4 élevée</span> <span class="sev sev-moyenne">3 moyenne</span> <span class="sev sev-faible">1 faible</span> </td>
   </tr>
   
 </table>
@@ -189,37 +189,6 @@
 </div>
 
 <div class="card finding">
-  <h3><span class="sev sev-élevée">élevée</span>Vulnérabilités connues : OpenSSH 8.4p1 Debian 5+deb11u1</h3>
-  <div class="where">10.10.0.50:22 · Vulnérabilité (CVE) · fiabilité : à confirmer</div>
-  <p>OpenSSH 8.4p1 Debian 5+deb11u1 est concerné par 2 vulnérabilité(s) publiée(s) : 0 critique(s), 0 activement exploitée(s) (CISA KEV), 1 publiée(s) ces 12 derniers mois. Attention : ce paquet vient d&#39;une distribution Linux qui corrige souvent les failles sans changer le numéro de version (backport). Vérifie avec le gestionnaire de paquets avant de conclure.</p>
-  
-  <div class="lbl">Vulnérabilités les plus importantes</div>
-  <table>
-    <tr><th>CVE</th><th>CVSS</th><th>Exploitation</th><th>Publiée</th><th>Description</th></tr>
-    
-    <tr>
-      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-6387">CVE-2024-6387</a></td>
-      <td><b>8.1</b></td>
-      <td><br>EPSS 38.0 %</td>
-      <td>2024-07-01</td>
-      <td style="font-size:8pt">regreSSHion</td>
-    </tr>
-    
-    <tr>
-      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-0001">CVE-2026-0001</a></td>
-      <td><b>5.0</b></td>
-      <td></td>
-      <td>2026-06-01 <span class="new">RÉCENTE</span></td>
-      <td style="font-size:8pt">Récente</td>
-    </tr>
-    
-  </table>
-  
-  
-  <div class="fix"><b>Correction recommandée : </b>Mettre à jour OpenSSH vers la dernière version stable de l&#39;éditeur, puis relancer l&#39;audit.</div>
-</div>
-
-<div class="card finding">
   <h3><span class="sev sev-élevée">élevée</span>Redis accessible</h3>
   <div class="where">10.10.0.50:6379 · Exposition</div>
   <p>Redis sans authentification permet souvent de prendre le contrôle du serveur.</p>
@@ -230,8 +199,8 @@
 </div>
 
 <div class="card finding">
-  <h3><span class="sev sev-élevée">élevée</span>Vulnérabilité détectée par le script http-vuln-cve2021-41773</h3>
-  <div class="where">10.10.0.50:8099 · Vulnérabilité</div>
+  <h3><span class="sev sev-élevée">élevée</span>Vulnérabilité confirmée (script http-vuln-cve2021-41773)</h3>
+  <div class="where">10.10.0.50:8099 · Vulnérabilité · fiabilité : confirmée</div>
   <p>Un script de détection Nmap a confirmé une vulnérabilité sur ce service.</p>
   
   <div class="lbl">Preuve</div><pre>VULNERABLE:
@@ -260,6 +229,37 @@
   <div class="lbl">Preuve</div><pre>21/tcp ftp vsftpd 3.0.3</pre>
   
   <div class="fix"><b>Correction recommandée : </b>Remplacer par SFTP/FTPS ou restreindre au réseau d&#39;administration.</div>
+</div>
+
+<div class="card finding">
+  <h3><span class="sev sev-moyenne">moyenne</span>Vulnérabilités possibles (à vérifier) : OpenSSH 8.4p1 Debian 5+deb11u1</h3>
+  <div class="where">10.10.0.50:22 · Vulnérabilité (CVE) · fiabilité : à confirmer</div>
+  <p>OpenSSH 8.4p1 Debian 5+deb11u1 est concerné par 2 vulnérabilité(s) publiée(s) : 0 critique(s), 0 activement exploitée(s) (CISA KEV), 1 publiée(s) ces 12 derniers mois. Attention : ce paquet vient d&#39;une distribution Linux qui corrige souvent les failles sans changer le numéro de version (backport). Vérifie avec le gestionnaire de paquets avant de conclure.</p>
+  
+  <div class="lbl">Vulnérabilités les plus importantes</div>
+  <table>
+    <tr><th>CVE</th><th>CVSS</th><th>Exploitation</th><th>Publiée</th><th>Description</th></tr>
+    
+    <tr>
+      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-6387">CVE-2024-6387</a></td>
+      <td><b>8.1</b></td>
+      <td><br>EPSS 38.0 %</td>
+      <td>2024-07-01</td>
+      <td style="font-size:8pt">regreSSHion</td>
+    </tr>
+    
+    <tr>
+      <td class="mono"><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-0001">CVE-2026-0001</a></td>
+      <td><b>5.0</b></td>
+      <td></td>
+      <td>2026-06-01 <span class="new">RÉCENTE</span></td>
+      <td style="font-size:8pt">Récente</td>
+    </tr>
+    
+  </table>
+  
+  
+  <div class="fix"><b>Correction recommandée : </b>Installer les mises à jour de sécurité du système (Debian/Ubuntu : sudo apt update &amp;&amp; sudo apt full-upgrade), puis lire l&#39;avis de sécurité de la distribution pour chaque CVE listée.</div>
 </div>
 
 <div class="card finding">

@@ -96,21 +96,33 @@ def service_findings(host: dict) -> list[dict]:
                                    "Retirer ces algorithmes de sshd_config (KexAlgorithms, Ciphers, MACs).", ", ".join(weak)))
         for sid, text in sc.items():
             if VULN_STATE.search(text):
-                cves = sorted(set(re.findall(r"CVE-\d{4}-\d{4,7}", text)))
-                out.append(finding(ip, p["port"], f"Vulnérabilité détectée par le script {sid}", "élevée", "Vulnérabilité",
-                                   "Un script de détection Nmap a confirmé une vulnérabilité sur ce service.",
-                                   "Appliquer le correctif de l'éditeur ou mettre à jour le service.", text, cves=cves))
+                out.append(_nse_finding(ip, p["port"], sid, text))
     for sid, text in host.get("host_scripts", {}).items():
         if sid in ("smb2-security-mode", "smb-security-mode") and re.search(r"not required|disabled", text, re.I):
             out.append(finding(ip, 445, "Signature SMB non obligatoire", "moyenne", "Configuration",
                                "Sans signature SMB, un attaquant sur le réseau peut relayer des authentifications (NTLM relay).",
                                "Activer « Microsoft network server: Digitally sign communications (always) ».", text))
         if VULN_STATE.search(text):
-            out.append(finding(ip, None, f"Vulnérabilité détectée par le script {sid}", "élevée", "Vulnérabilité",
-                               "Un script de détection Nmap a confirmé une vulnérabilité sur cet hôte.",
-                               "Appliquer les correctifs de sécurité du système.", text,
-                               cves=sorted(set(re.findall(r"CVE-\d{4}-\d{4,7}", text)))))
+            out.append(_nse_finding(ip, None, sid, text))
     return out
+
+
+def _nse_finding(ip: str, port, sid: str, text: str) -> dict:
+    """Constat issu d'un script Nmap « vuln ». « LIKELY VULNERABLE » = probable, pas confirmé."""
+    cves = sorted(set(re.findall(r"CVE-\d{4}-\d{4,7}", text)))
+    if sid == "http-slowloris-check":
+        return finding(ip, port, "Serveur web sensible à Slowloris (déni de service)", "faible", "Disponibilité",
+                       "Le serveur garde ouvertes des connexions lentes : un attaquant ayant accès au réseau pourrait le saturer. "
+                       "Risque limité sur un réseau interne, et fréquent faux positif de ce test.",
+                       "Limiter le nombre de connexions par client et réduire les délais d'attente (nginx : limit_conn, "
+                       "client_header_timeout). Ne pas exposer ce service sur Internet.", text, cves=cves, confidence="probable")
+    likely = bool(re.search(r"State:\s*LIKELY", text, re.I))
+    return finding(ip, port, f"Vulnérabilité {'probable' if likely else 'confirmée'} (script {sid})",
+                   "moyenne" if likely else "élevée", "Vulnérabilité",
+                   "Un script de détection Nmap signale une vulnérabilité probable sur ce service." if likely
+                   else "Un script de détection Nmap a confirmé une vulnérabilité sur ce service.",
+                   "Appliquer le correctif de l'éditeur ou mettre à jour le service.", text, cves=cves,
+                   confidence="probable" if likely else "confirmée")
 
 
 def _is_http(p: dict) -> bool:

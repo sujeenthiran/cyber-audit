@@ -130,6 +130,9 @@ def epss_for(cves: list[str]) -> dict[str, dict]:
     return res
 
 
+SEV_RANK = {"info": 0, "faible": 1, "moyenne": 2, "élevée": 3, "critique": 4}
+
+
 def cvss_to_sev(score: float | None) -> str:
     if score is None:
         return "moyenne"
@@ -185,15 +188,22 @@ def vuln_findings(hosts: list[dict], intel: Intel, log=lambda msg: None) -> list
             sev = "critique" if kev_n else cvss_to_sev(top["cvss"])
             backport = any(x in (p["version"] + " " + p["extrainfo"]).lower() for x in ("debian", "ubuntu", "red hat", "rhel", "centos", "alma", "rocky"))
             label = f"{p['product'] or p['service']} {p['version']}".strip()
+            if backport and SEV_RANK[sev] > SEV_RANK["moyenne"]:
+                # Version de distribution : correctifs souvent rétroportés, donc constat à vérifier, pas une faille prouvée
+                sev = "moyenne"
             desc = (f"{label} est concerné par {len(enriched)} vulnérabilité(s) publiée(s) : {crit_n} critique(s), "
                     f"{kev_n} activement exploitée(s) (CISA KEV), {recent_n} publiée(s) ces 12 derniers mois.")
             if backport:
                 desc += (" Attention : ce paquet vient d'une distribution Linux qui corrige souvent les failles sans changer "
                          "le numéro de version (backport). Vérifie avec le gestionnaire de paquets avant de conclure.")
             out.append(finding(
-                h["ip"], p["port"], f"Vulnérabilités connues : {label}", sev, "Vulnérabilité (CVE)", desc,
-                f"Mettre à jour {p['product'] or p['service']} vers la dernière version stable de l'éditeur, puis relancer l'audit."
-                + (" Priorité absolue : au moins une faille est exploitée par des attaquants en ce moment." if kev_n else ""),
+                h["ip"], p["port"], (f"Vulnérabilités possibles (à vérifier) : {label}" if backport else f"Vulnérabilités connues : {label}"),
+                sev, "Vulnérabilité (CVE)", desc,
+                ("Installer les mises à jour de sécurité du système (Debian/Ubuntu : sudo apt update && sudo apt full-upgrade), "
+                 "puis lire l'avis de sécurité de la distribution pour chaque CVE listée."
+                 if backport else
+                 f"Mettre à jour {p['product'] or p['service']} vers la dernière version stable de l'éditeur, puis relancer l'audit."
+                 + (" Priorité absolue : au moins une faille est exploitée par des attaquants en ce moment." if kev_n else "")),
                 evidence=", ".join(e["id"] for e in enriched[:8]),
                 references=[f"https://nvd.nist.gov/vuln/detail/{e['id']}" for e in enriched[:5]],
                 cves=[e["id"] for e in enriched], cve_details=enriched[:12], confidence="à confirmer" if backport else "probable",

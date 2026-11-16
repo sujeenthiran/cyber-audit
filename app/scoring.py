@@ -18,7 +18,7 @@ def grade(findings: list[dict]) -> dict:
     counts = stats(findings)
     score = max(0, 100 - sum(WEIGHTS[k] * n for k, n in counts.items()))
     if counts["critique"]:
-        score = min(score, 39)
+        score = min(score, 59)  # plafond D
     elif counts["élevée"]:
         score = min(score, 74)
     for threshold, letter, label in GRADES:
